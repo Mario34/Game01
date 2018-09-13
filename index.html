@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贪吃蛇</title>
+    <script>
+        window.onload = function() {
+            var canvas = document.getElementById('sneke');
+            var ctn = canvas.getContext('2d');
+
+            var x = 10,
+                y = 10;
+            var size = 10;
+            var length = 10;
+            var speed = 80; //速度  px/s
+            var arr = []; //储存绘画内容（蛇身）的位置；
+            var deriction = 3; //1,2,3,4:left,up,right,down
+            var foodX, foodY;
+
+            //初始化函数
+            function reset() {
+                x = 10;
+                y = 10;
+                length = 10;
+                arr = []; //储存绘画内容（蛇身）的位置；
+                deriction = 3; //1,2,3,4:left,up,right,down
+            }
+
+            //游戏结束函数
+            function over() {
+                clearInterval(time);
+                document.querySelector('.tips').classList.add('show');
+                document.querySelector('.tips').innerHTML = '游戏结束 最高得分' + (length - 10);
+                return;
+            }
+
+            //暂停游戏
+            document.querySelector('.stop').addEventListener('click', function() {
+                stop();
+            });
+
+            function stop() {
+                clearInterval(time);
+            }
+
+            //开始游戏
+            document.querySelector('.start').addEventListener('click', function() {
+                snake();
+                time = setInterval(function() {
+                    snake();
+                }, 1000 / (speed / 10));
+            });
+
+            //重新开始
+            document.querySelector('.restart').addEventListener('click', function() {
+                location.reload();
+            });
+
+            //按键控制方向(deriction)
+            document.addEventListener('keydown', function(e) {
+                if (e.keyCode - 36 > 0 && e.keyCode - 36 < 5) {
+                    if (deriction + 2 == e.keyCode - 36 || deriction - 2 == e.keyCode - 36) {
+                        deriction; //按下与前进方向相反的按键时，不做方向的更改；
+                    } else {
+                        deriction = e.keyCode - 36;
+                    }
+                }
+            })
+
+            snake();
+            time = setInterval(function() {
+                snake();
+            }, 1000 / (speed / 10));
+
+            //蛇函数
+            function snake() {
+
+                switch (deriction) {
+                    case 1:
+                        x -= size;
+                        break;
+                    case 2:
+                        y -= size;
+                        break;
+                    case 3:
+                        x += size;
+                        break;
+                    case 4:
+                        y += size;
+                        break;
+                }
+
+                //判断碰壁结束游戏；
+                if (x < 0 || x > canvas.width - size) {
+                    over();
+                };
+                if (y < 0 || y > canvas.height - size) {
+                    over();
+                };
+
+                var adjust = arr.some(function(item, index, array) {
+                    if (item.x == x && item.y === y) {
+                        return true;
+                    }
+                });
+
+                if (adjust) {
+                    over();
+                };
+                arr.push({
+                    'x': x,
+                    'y': y
+                })
+
+
+
+                ctn.fillStyle = '#333';
+                ctn.fillRect(x, y, size, size);
+                if (arr.length > length) {
+                    var clear = arr.shift();
+                    var clearX = clear.x;
+                    var clearY = clear.y;
+                    ctn.clearRect(clearX, clearY, size, size);
+                };
+                if (x == foodX && y == foodY) {
+                    length++;
+                    var ele = document.querySelector('.grade span');
+                    ele.innerHTML = length - 10;
+                    food();
+                };
+
+            };
+
+            //食物函数
+            food();
+
+            function food() {
+                foodX = Math.floor(Math.random() * (canvas.width / size)) * size;
+                foodY = Math.floor(Math.random() * (canvas.height / size)) * size;
+
+                ctn.fillStyle = 'red';
+                ctn.fillRect(foodX, foodY, size, size);
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        #sneke {
+            background-color: #fff;
+        }
+        
+        .box {
+            height: 700px;
+            width: 500px;
+            margin: 30px auto;
+            position: relative;
+            background-color: #f1f1f1;
+        }
+        
+        .sorce {
+            height: 200px;
+            width: 500px;
+            background-color: #678;
+            border-top: 10px solid #666;
+        }
+        
+        .sorce .grade {
+            line-height: 80px;
+            font-size: 28px;
+            padding: 0 20px;
+            color: #f1f1f1;
+        }
+        
+        .sorce .grade span {
+            font-weight: bold;
+            color: blue;
+            font-size: 38px;
+            padding: 0 15px;
+        }
+        
+        .tips {
+            position: absolute;
+            top: 200px;
+            left: 50%;
+            width: 400px;
+            height: 100px;
+            transform: translate(-50%, 0);
+            background-color: rgba(222, 222, 222, .6);
+            line-height: 100px;
+            text-align: center;
+            color: orangered;
+            font-weight: bold;
+            font-size: 30px;
+            opacity: 0;
+            transition: all .6s;
+        }
+        
+        .tips.show {
+            opacity: 1;
+        }
+        
+        .btn {
+            height: 40px;
+            width: 100px;
+            background-color: #fff;
+            float: left;
+            margin: 10px 30px;
+            cursor: pointer;
+            line-height: 40px;
+            text-align: center;
+            color: #678;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <canvas id='sneke' height="500" width="500">浏览器版本过低，请升级浏览器</canvas>
+        <div class="sorce">
+            <div class="grade">得分<span>0</span></div>
+            <div class="stop btn">暂停</div>
+            <div class="start btn">开始</div>
+            <div class="restart btn">重新开始</div>
+        </div>
+        <div class="tips"></div>
+
+    </div>
+</body>
+
+</html>
