@@ -19,6 +19,8 @@
             var arr = []; //储存绘画内容（蛇身）的位置；
             var deriction = 3; //1,2,3,4:left,up,right,down
             var foodX, foodY;
+            var time;
+            var static = true; //游丝的暂停/开始状态
 
             //初始化函数
             function reset() {
@@ -37,27 +39,33 @@
                 return;
             }
 
-            //暂停游戏
-            document.querySelector('.stop').addEventListener('click', function() {
-                stop();
-            });
+            //--------------------------------暂停游戏
+
+            document.querySelector('.stop').addEventListener('click', stop);
 
             function stop() {
+                console.log('stop');
                 clearInterval(time);
+                document.querySelector('.start').addEventListener('click', start);
+                static = false;
             }
 
-            //开始游戏
-            document.querySelector('.start').addEventListener('click', function() {
+            //函数开始游戏
+            function start() {
+                console.log('start');
                 snake();
                 time = setInterval(function() {
                     snake();
                 }, 1000 / (speed / 10));
-            });
+                static == true;
+            }
+
 
             //重新开始
             document.querySelector('.restart').addEventListener('click', function() {
                 location.reload();
             });
+
 
             //按键控制方向(deriction)
             document.addEventListener('keydown', function(e) {
@@ -68,7 +76,7 @@
                         deriction = e.keyCode - 36;
                     }
                 }
-            })
+            });
 
             snake();
             time = setInterval(function() {
@@ -93,6 +101,27 @@
                         break;
                 }
 
+                //速度加快
+                if (length == 11) {
+                    speed = 100;
+                    console.log(speed);
+                };
+                if (length == 20) {
+                    speed = 120;
+                };
+                if (length == 30) {
+                    speed = 140;
+                };
+                if (length == 35) {
+                    speed = 150;
+                };
+                if (length == 40) {
+                    speed = 160;
+                };
+                if (length == 45) {
+                    speed = 170;
+                };
+
                 //判断碰壁结束游戏；
                 if (x < 0 || x > canvas.width - size) {
                     over();
@@ -114,8 +143,6 @@
                     'x': x,
                     'y': y
                 })
-
-
 
                 ctn.fillStyle = '#333';
                 ctn.fillRect(x, y, size, size);
